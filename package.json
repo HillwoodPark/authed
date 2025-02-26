@@ -19,8 +19,12 @@
     "test": "NODE_OPTIONS='--trace-deprecation' vitest --typecheck.enabled --typecheck.checker=tsc"
   },
   "devDependencies": {
+    "@types/node": "22.13.5",
     "tsx": "4.19.3",
     "typescript": "5.7.3",
     "vitest": "3.0.7"
+  },
+  "dependencies": {
+    "jsonwebtoken": "9.0.2"
   }
 }

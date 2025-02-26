@@ -1,13 +1,13 @@
 // TODO(tjohns)
-export interface DPopHandler {
+export interface DPoPHandler {
   createProof(method: string, url: string, privateKeyPem: string): string;
 };
-export class DPopHandlerImpl implements DPopHandler {
+export class DPoPHandlerImpl implements DPoPHandler {
   createProof(method: string, url: string, privateKeyPem: string): string {
     throw new Error("Method not implemented.");
   }
 };
 
-export function createDefaultDPopHandler() {
-  return new DPopHandlerImpl();
+export function createDefaultDPoPHandler() {
+  return new DPoPHandlerImpl();
 }

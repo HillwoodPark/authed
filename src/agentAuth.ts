@@ -1,4 +1,4 @@
-import { createDefaultDPopHandler, DPopHandler } from "./dpopHandler.js";
+import { createDefaultDPoPHandler, DPoPHandler } from "./dpopHandler.js";
 import { createDefaultLogger, errorMessageFromUnknown, Logger } from "./logger.js";
 import { createDefaultTokenManager, TokenManager } from "./tokenManager.js";
 
@@ -25,10 +25,9 @@ function normalizeUrl(url: string): string {
   return parsed.toString();
 }
 
-
 export type AgentAuthDeps = {
   logger: Logger,
-  dpop: DPopHandler,
+  dpop: DPoPHandler,
   tokenManager: TokenManager
 }
 
@@ -36,9 +35,9 @@ export interface AgentAuth {
   getInteractionToken(targetAgentId: string, registryUrl?: string): Promise<string>;
 }
 
-class AgentAuthImpl implements AgentAuth {
+export class AgentAuthImpl implements AgentAuth {
   private readonly logger: Logger;
-  private readonly dpop: DPopHandler;
+  private readonly dpop: DPoPHandler;
   private readonly tokenManager: TokenManager;
 
   private readonly registryUrl: string;
@@ -85,9 +84,9 @@ class AgentAuthImpl implements AgentAuth {
       logger.logDebug("Creating DPoP proof for token request to:", {tokenEndpoint});
       
       const dpopProof = this.dpop.createProof(
-          "POST",
-          tokenEndpoint,
-          this.privateKey
+        "POST",
+        tokenEndpoint,
+        this.privateKey
       )
 
       logger.logDebug("DPoP proof created successfully")
@@ -119,7 +118,7 @@ class AgentAuthImpl implements AgentAuth {
 export function createAgentAuth(params: AgentAuthParams): AgentAuth {
   return new AgentAuthImpl({
     logger: createDefaultLogger(),
-    dpop: createDefaultDPopHandler(),
+    dpop: createDefaultDPoPHandler(),
     tokenManager: createDefaultTokenManager()
   }, params)
 }

@@ -1,7 +1,7 @@
 import { vi } from "vitest";
-import { DPopHandler } from "../src/dpopHandler.js";
+import { DPoPHandler } from "../src/dpopHandler.js";
 
-export class MockDPopHandler implements DPopHandler {
+export class MockDPoPHandler implements DPoPHandler {
   public readonly createProof = vi.fn();
 
   public mockRestore() {

@@ -1,0 +1,26 @@
+{
+  "name": "@hillwoodpark/authed",
+  "version": "1.0.0",
+  "description": "Node TypeScript implementation of https://github.com/authed-dev/authed",
+  "homepage": "https://github.com/HillwoodPark/authed#readme",
+  "bugs": {
+    "url": "https://github.com/HillwoodPark/authed/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HillwoodPark/authed.git"
+  },
+  "license": "MIT",
+  "author": "Tim Johns",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "NODE_OPTIONS='--trace-deprecation' vitest --typecheck.enabled --typecheck.checker=tsc"
+  },
+  "devDependencies": {
+    "tsx": "4.19.3",
+    "typescript": "5.7.3",
+    "vitest": "3.0.7"
+  }
+}

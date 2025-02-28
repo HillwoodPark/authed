@@ -13,7 +13,7 @@
   "license": "MIT",
   "author": "Tim Johns",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "test": "NODE_OPTIONS='--trace-deprecation' vitest --typecheck.enabled --typecheck.checker=tsc"

@@ -94,14 +94,14 @@ export class AgentAuthImpl implements AgentAuth {
       logger.logDebug("Requesting token from registry...")
 
       // Convert targetAgentId to string before passing to getToken
-      const token = await this.tokenManager.getToken(
-          this.agentId,
-          this.agentSecret,
-          targetAgentId,
+      const token = await this.tokenManager.getToken({
+          agentId: this.agentId,
+          agentSecret: this.agentSecret,
+          targetAgentId: targetAgentId,
           dpopProof,
-          this.publicKey,
-          tokenEndpoint.split('/tokens/create', 1)[0] // Pass the base URL with correct scheme
-      )
+          dpopPublicKey: this.publicKey,
+          registryUrl: tokenEndpoint.split('/tokens/create', 1)[0] // Pass the base URL with correct scheme
+      })
 
       logger.logDebug("Token received successfully", {token: token.substring(0,19)})
       
@@ -119,7 +119,7 @@ export function createAgentAuth(params: AgentAuthParams): AgentAuth {
   return new AgentAuthImpl({
     logger: createDefaultLogger(),
     dpop: createDefaultDPoPHandler(),
-    tokenManager: createDefaultTokenManager()
+    tokenManager: createDefaultTokenManager(params.registryUrl)
   }, params)
 }
 

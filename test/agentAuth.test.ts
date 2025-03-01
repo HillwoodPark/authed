@@ -121,7 +121,7 @@ describe("agentAuth", () => {
 
     })
 
-    it("return the token", async () => {
+    it("should return the token", async () => {
       tokenManager.getToken.mockRestore();
       tokenManager.getToken.mockReturnValue("token");
 

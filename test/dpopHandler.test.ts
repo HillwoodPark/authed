@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DPoPHandlerImpl } from "../src/dpopHandler";
 import jsonwebtoken from "jsonwebtoken";
-import { generateKeyPairSync } from 'node:crypto';
+import { generateKeyPairSync, createPublicKey } from 'node:crypto';
 
 
 const keypair = generateKeyPairSync("rsa", {
@@ -140,6 +140,20 @@ describe("dpopHandler", () => {
       const { header } = jsonwebtoken.verify(proof, keypair.publicKey, {complete: true});
 
       expect(header["jwk"]["alg"]).toEqual("RS256");
+    })
+
+    it('should have valid RSA modulus and public exponent for the public key in the "jwk" header', () => {
+      const proof = dpopHandler.createProof("POST", "https://example.com", keypair.privateKey);
+
+      const { header } = jsonwebtoken.verify(proof, keypair.publicKey, {complete: true});
+
+      const jwk = header["jwk"];
+
+      const publicKey = createPublicKey({format: "jwk", key: jwk});
+
+      const keyObject = createPublicKey(keypair.publicKey);
+
+      expect(publicKey.equals(keyObject)).toEqual(true);
     })
 
   

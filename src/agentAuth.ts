@@ -95,12 +95,12 @@ export class AgentAuthImpl implements AgentAuth {
 
       // Convert targetAgentId to string before passing to getToken
       const token = await this.tokenManager.getToken({
-          agentId: this.agentId,
-          agentSecret: this.agentSecret,
-          targetAgentId: targetAgentId,
-          dpopProof,
-          dpopPublicKey: this.publicKey,
-          registryUrl: tokenEndpoint.split('/tokens/create', 1)[0] // Pass the base URL with correct scheme
+        agentId: this.agentId,
+        agentSecret: this.agentSecret,
+        targetAgentId: targetAgentId,
+        dpopProof,
+        dpopPublicKey: this.publicKey,
+        registryUrl: tokenEndpoint.split('/tokens/create', 1)[0] // Pass the base URL with correct scheme
       })
 
       logger.logDebug("Token received successfully", {token: token.substring(0,19)})

@@ -14,6 +14,7 @@ This implementation is both an experiment and a work-in-progress, the intent of 
 - Document (and enforce) that Node 21 or newer is required for the fetch API, and/or add Axios
 - Create (or better - adopt) some Error "shape" convention, for error handling (e.g. AuthenticationError, RegistryError, etc.)
 - CAREFULLY DRY up some tests, specifically by adding some reusable fixtures (e.g. GetTokenParams)
+- Figure out how to avoid packaging examples
 
 ### After integration testing:
 - Determine whether the nonce format is correct and compatible with the server and consistent with the Python implementation

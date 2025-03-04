@@ -105,9 +105,7 @@ export class AgentAuthImpl implements AgentAuth {
       // Add auth headers
       headers.set("dpop", proof);
       headers.set("authorization", `Bearer ${token}`);
-      headers.set("target-agent-id", targetAgentId)
-
-      logger.logDebug("Final headers", {headers});
+      headers.set("target-agent-id", targetAgentId);
 
       return headers;
 
@@ -251,6 +249,7 @@ export class AgentAuthImpl implements AgentAuth {
 }
 
 export function createAgentAuth(params: AgentAuthParams): AgentAuth {
+
   return new AgentAuthImpl({
     logger: createDefaultLogger(),
     dpop: createDefaultDPoPHandler(),

@@ -15,8 +15,6 @@ export async function main() {
     },
   })
   
-  const assignedPrivateKey =  keypair.privateKey;
-
   const agentAuth = createAgentAuth({
     registryUrl: process.env.AUTHED_REGISTRY_URL || "",
     agentId: process.env.AUTHED_AGENT_ID || "",
@@ -28,7 +26,7 @@ export async function main() {
   const targetAgentId = process.env.AUTHED_TARGET_AGENT_ID || "";
 
   const method = "GET";
-  const url = "http://localhost/secure-endpoint";
+  const url = "http://localhost:3000/secure-endpoint";
 
   const headers = await agentAuth.protectRequest(method, url, targetAgentId, new Headers({"Content-Type": "application/json"}));
 

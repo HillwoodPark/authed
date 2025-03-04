@@ -9,6 +9,7 @@ This implementation is both an experiment and a work-in-progress, the intent of 
 ## TODO:
 
 ### Anytime:
+- Determine if method should be used in verify_request/verifyRequest (it's passed in -- but it's not used, and presumably is encapsulated by the token in the auth header)
 - Remove per-run key generation from tests (hard-coded keys in the code are fine for this - but scary-looking and freak out the static analysis tools)
 - Document (and enforce) that Node 21 or newer is required for the fetch API, and/or add Axios
 - Create (or better - adopt) some Error "shape" convention, for error handling (e.g. AuthenticationError, RegistryError, etc.)

@@ -3,19 +3,24 @@ import { TokenManagerImpl } from "../src/tokenManager";
 import { InteractionToken } from "../src/models";
 
 describe("tokenManager", () => {
+  const tokenCache = new Map<string, InteractionToken>();
+  const fetch = vi.fn();
+
+  beforeEach(() => {
+    tokenCache.clear();
+    fetch.mockRestore();
+  })
 
   describe('isTokenValid', () => {
 
     it('should return false if the token is not in the cache', () => {
-      const tokenCache = new Map<string, InteractionToken>();
-      const tokenManager = new TokenManagerImpl({tokenCache, fetch: vi.fn()}, "https://example.com/registry");
+      const tokenManager = new TokenManagerImpl({tokenCache, fetch}, "https://example.com/registry");
 
       expect(tokenManager.isTokenValid("agentId", "targetAgentId")).toEqual(false)          
     })
 
     it('should return false if the token is in the cache, but expired', () => {
-      const tokenCache = new Map<string, InteractionToken>();
-      const tokenManager = new TokenManagerImpl({tokenCache, fetch: vi.fn()}, "https://example.com/registry");
+      const tokenManager = new TokenManagerImpl({tokenCache, fetch}, "https://example.com/registry");
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
       const expiredToken = new InteractionToken("expiredToken", "targetAgentId", fiveMinutesAgo);
@@ -26,8 +31,7 @@ describe("tokenManager", () => {
     })
 
     it('should return true if the token is in the cache, and not expired', () => {
-      const tokenCache = new Map<string, InteractionToken>();
-      const tokenManager = new TokenManagerImpl({tokenCache, fetch: vi.fn()}, "https://example.com/registry");
+      const tokenManager = new TokenManagerImpl({tokenCache, fetch}, "https://example.com/registry");
       const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
 
       const unexpiredToken = new InteractionToken("unexpiredToken", "targetAgentId", fiveMinutesFromNow);
@@ -40,7 +44,6 @@ describe("tokenManager", () => {
   })
 
   describe("getToken", () => {
-    const fetch = vi.fn();
 
     beforeEach(() => {
       fetch.mockRestore();
@@ -54,7 +57,6 @@ describe("tokenManager", () => {
     })
 
     it('should return a valid cached token without calling fetch', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
       const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
       const unexpiredToken = new InteractionToken("unexpiredToken", "targetAgentId", fiveMinutesFromNow);
@@ -75,7 +77,6 @@ describe("tokenManager", () => {
     })  
 
     it('should call fetch if the cached token is expired', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
       const expiredToken = new InteractionToken("expiredToken", "targetAgentId", fiveMinutesAgo);
@@ -93,7 +94,6 @@ describe("tokenManager", () => {
     })  
 
     it('should send the provided agentId in the request headers', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
   
       await tokenManager.getToken({
@@ -114,7 +114,6 @@ describe("tokenManager", () => {
     });
 
     it('should send the agentSecret in the request headers', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
   
       await tokenManager.getToken({
@@ -135,7 +134,6 @@ describe("tokenManager", () => {
     });
     
     it('should send the dpopProof in the request headers', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
   
       await tokenManager.getToken({
@@ -156,7 +154,6 @@ describe("tokenManager", () => {
     });
 
     it('should send the application/json Content-Type header', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
   
       await tokenManager.getToken({
@@ -177,7 +174,6 @@ describe("tokenManager", () => {
     });
 
     it('should strip headers, newlines, and whitespace from the dpopPublicKey', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
 
       await tokenManager.getToken({
@@ -198,7 +194,6 @@ describe("tokenManager", () => {
     });
 
     it('should send a key without headers, newlines, and whitespace verbatim', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
 
       await tokenManager.getToken({
@@ -218,7 +213,6 @@ describe("tokenManager", () => {
     })
 
     it('should force https for queries overridden to go to the official authed registry servers', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
 
       await tokenManager.getToken({
@@ -238,7 +232,6 @@ describe("tokenManager", () => {
     })
 
     it('should not force https for queries overridden to go to locally hosted registry servers', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
 
       await tokenManager.getToken({
@@ -258,7 +251,6 @@ describe("tokenManager", () => {
     })
 
     it('should handle a trailing slash and upgrade the manager-wide registryUrl to https', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "http://example.com/registry/");
 
       await tokenManager.getToken({
@@ -277,7 +269,6 @@ describe("tokenManager", () => {
     })
 
     it('should POST', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
   
       await tokenManager.getToken({
@@ -297,11 +288,9 @@ describe("tokenManager", () => {
     })
 
     it('should throw if the server responds with 401', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
   
       fetch.mockRestore();
-
       fetch.mockReturnValue(new Response("Unauthorized", {status: 401}))
   
       await expect(() => tokenManager.getToken({
@@ -317,11 +306,9 @@ describe("tokenManager", () => {
     })
 
     it('should throw if the server responds with 500', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
   
       fetch.mockRestore();
-
       fetch.mockReturnValue(new Response("Internal Server Error", {status: 500}))
   
       await expect(() => tokenManager.getToken({
@@ -337,7 +324,6 @@ describe("tokenManager", () => {
     })    
 
     it('should return the token from the response', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
       const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
 
@@ -362,13 +348,10 @@ describe("tokenManager", () => {
     })    
 
     it('should cache the token from the response', async () => {
-      const tokenCache = new Map<string, InteractionToken>();
       const tokenManager = new TokenManagerImpl({fetch, tokenCache}, "https://example.com/registry");
       const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
   
       fetch.mockRestore();
-
-      fetch.mockReturnValue(new Response("Internal Server Error", {status: 500}))
   
       fetch.mockReturnValue(new Response(JSON.stringify({
         token: "returnedToken",

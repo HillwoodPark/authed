@@ -25,20 +25,29 @@ function normalizeUrl(url: string): string {
   return parsed.toString();
 }
 
+type FetchFn = (
+  input: string | URL | globalThis.Request,
+  init?: RequestInit,
+) => Promise<Response>;
+
 export type AgentAuthDeps = {
   logger: Logger,
   dpop: DPoPHandler,
-  tokenManager: TokenManager
+  tokenManager: TokenManager,
+  fetch: FetchFn;
 }
 
 export interface AgentAuth {
   getInteractionToken(targetAgentId: string, registryUrl?: string): Promise<string>;
+  protectRequest(method: string, url: string, targetAgentId: string, existingHeaders?: Headers): Promise<Headers>;
+  verifyRequest(method: string, url: string, headers: Headers): Promise<boolean>;
 }
 
 export class AgentAuthImpl implements AgentAuth {
   private readonly logger: Logger;
   private readonly dpop: DPoPHandler;
   private readonly tokenManager: TokenManager;
+  private readonly fetch: FetchFn;
 
   private readonly registryUrl: string;
   private readonly agentId: string;
@@ -50,12 +59,138 @@ export class AgentAuthImpl implements AgentAuth {
     this.logger = deps.logger;
     this.dpop = deps.dpop;
     this.tokenManager = deps.tokenManager;
+    this.fetch = deps.fetch;
 
     this.agentId = params.agentId;
     this.agentSecret = params.agentSecret;
     this.privateKey = params.privateKey;
     this.registryUrl = params.registryUrl;
     this.publicKey = params.publicKey;
+  }
+
+  async protectRequest(method: string, url: string, targetAgentId: string, existingHeaders?: Headers): Promise<Headers> {
+    const logger = this.logger;
+
+    if(!this.privateKey) {
+      logger.logError('Missing private key')
+
+      throw new Error("Private key required for protecting requests")
+
+    }
+
+    try {
+
+      // Start with existing headers
+      const headers = new Headers(existingHeaders);
+      
+      logger.logDebug("Initial headers", headers);
+
+      // Add DPoP proof
+      logger.logDebug("Generating DPoP proof...")
+      logger.logDebug("DPoP proof method", {method})
+      logger.logDebug("DPoP proof URL", {url});
+      logger.logDebug("Private key present for DPoP proof generation");
+
+      // Generate DPoP proof for the actual request URL
+      const proof = this.dpop.createProof(method, url, this.privateKey);
+
+      logger.logDebug("Generated DPoP proof", {proof: proof.substring(0, 49)});
+
+      // Get token for target agent (always use HTTPS for registry)
+      logger.logDebug("Getting interaction token for target agent", {targetAgentId});
+      const token = await this.getInteractionToken(targetAgentId);
+     
+      logger.logDebug("Got interaction token", {token: token.substring(0, 19)});
+
+      // Add auth headers
+      headers.set("dpop", proof);
+      headers.set("authorization", `Bearer ${token}`);
+      headers.set("target-agent-id", targetAgentId)
+
+      logger.logDebug("Final headers", {headers});
+
+      return headers;
+
+    } catch (e: any) {
+      logger.logError("Error protecting request", {errorMessage: errorMessageFromUnknown(e)})
+      throw e;
+    }
+
+  }
+
+  async verifyRequest(method: string, url: string, headers: Headers): Promise<boolean> {
+    const logger = this.logger;
+
+    logger.logDebug("Verifying request...")
+    logger.logDebug("Method", {method});
+    logger.logDebug("URL", {url});
+    logger.logDebug("Headers", {headers});
+
+    // Extract token from Authorization header
+    const authHeader = headers.get("authorization");
+    if(!authHeader) {
+      logger.logError("Missing authorization header");
+      throw new Error("Missing authorization header")
+    }
+
+    const token = authHeader.startsWith("Bearer ") ? authHeader.replace("Bearer ", "") : authHeader;
+
+    // Extract DPoP proof
+    const dpop = headers.get("dpop");
+    if(!dpop) {
+      logger.logError("Missing DPoP proof header");
+      throw new Error("Missing DPoP proof header");
+    }
+
+    // Get target agent ID if present
+    const targetAgentId = headers.get("target-agent-id");
+    logger.logDebug("Target agent ID", {targetAgentId});
+
+    try {
+      // Call registry's verify endpoint
+      logger.logDebug("Making request to registry verify endpoint...")
+
+      const verifyUrl = `${this.registryUrl}/tokens/verify`;
+
+      // Create a new DPoP proof specifically for the verification request
+      const verificationProof = this.dpop.createProof(
+          "POST",  // Verification endpoint uses POST
+          verifyUrl,
+          this.privateKey
+      );
+
+      const verifyHeaders = new Headers({
+        "authorization": `Bearer ${token}`,
+        "dpop": verificationProof  // # Our new proof for this verification request
+      });
+
+      if(targetAgentId) {
+        verifyHeaders.set("target-agent-id", targetAgentId);
+      }
+
+      logger.logDebug("Verify request headers", {verifyHeaders});
+
+
+      // Ensure HTTPS for registry URLs
+      const baseUrl = this.registryUrl.includes("getauthed.dev") ? this.registryUrl.replace("http://", "https://") : this.registryUrl;
+      const requestUrl = baseUrl + "/tokens/verify";
+      const request = new Request(requestUrl);
+
+      const response = await this.fetch(request, {method: "POST", headers: verifyHeaders});
+
+      logger.logDebug("Verify response status: {response.status_code}");
+      logger.logDebug("Verify response body: {response.text}");
+
+      if(response.status == 401) throw new Error("Invalid agent credentials");
+      if(response.status != 200) throw new Error(await response.text());
+
+      return true;
+
+    } catch (e: any) {
+      logger.logError("Error verifying request", {errorMessage: errorMessageFromUnknown(e)})
+      throw e;
+    }
+
   }
 
 
@@ -119,7 +254,8 @@ export function createAgentAuth(params: AgentAuthParams): AgentAuth {
   return new AgentAuthImpl({
     logger: createDefaultLogger(),
     dpop: createDefaultDPoPHandler(),
-    tokenManager: createDefaultTokenManager(params.registryUrl)
+    tokenManager: createDefaultTokenManager(params.registryUrl),
+    fetch
   }, params)
 }
 

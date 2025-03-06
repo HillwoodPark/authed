@@ -12,6 +12,7 @@ This implementation is both an experiment and a work-in-progress, the intent of 
 ## TODO:
 
 ### Anytime:
+- Add a CLI
 - Remove per-run key generation from tests (hard-coded keys in the code are fine for this - but scary-looking and freak out the static analysis tools)
 - Create (or better - adopt) some Error "shape" convention, for error handling (e.g. AuthenticationError, RegistryError, etc.)
 - CAREFULLY DRY up some tests, specifically by adding some reusable fixtures (e.g. GetTokenParams)

@@ -10,7 +10,6 @@ export class InteractionToken {
   }
 }
 
-
 export class TokenRequest {
   public readonly targetAgentId: string;
   public readonly dpopProof: string;

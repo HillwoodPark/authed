@@ -1,5 +1,5 @@
 import { createDefaultDPoPHandler, DPoPHandler } from "./dpopHandler.js";
-import { createDefaultLogger, errorMessageFromUnknown, Logger } from "./logger.js";
+import { createDefaultLogger, errorMessageFromUnknown, Logger } from "@hillwoodpark/gcp-logger";
 import { createDefaultTokenManager, TokenManager } from "./tokenManager.js";
 
 export type AgentAuthParams = {

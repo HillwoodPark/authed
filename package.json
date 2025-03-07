@@ -1,6 +1,6 @@
 {
   "name": "@hillwoodpark/authed",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Node TypeScript implementation of https://github.com/authed-dev/authed",
   "homepage": "https://github.com/HillwoodPark/authed#readme",
   "bugs": {
@@ -29,7 +29,7 @@
     "vitest": "3.0.8"
   },
   "dependencies": {
-    "@hillwoodpark/gcp-logger": "1.0.0",
+    "@hillwoodpark/gcp-logger": "1.0.1",
     "jsonwebtoken": "9.0.2"
   }
 }

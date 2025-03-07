@@ -39,17 +39,13 @@ export async function main() {
   const response = await fetch(request, {method, headers});
 
   const contentType = response.headers.get('content-type')?.toLowerCase();
-  switch(contentType) {
-    case "application/json":
-      const json = await response.json();
-      console.log(json);
-      break;
-    default:
-      const text = await response.text();
-      console.log(text);
-      break;
+  if(contentType?.startsWith("application/json")) {
+    const json = await response.json();
+    console.log(json);
+  } else {
+    const text = await response.text();
+    console.log(text);
   }
-
 }
 
 

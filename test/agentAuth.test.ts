@@ -469,7 +469,7 @@ describe("agentAuth", () => {
 
       await expect(() => agentAuth.verifyRequest("POST", "https://example.com/targetAgentEndpoint", headers))
         .rejects
-        .toThrowError("Internal Server Error");      
+        .toThrowError("Internal Server Error");
     })
 
     it('should forward the target agent id when verifying the token with the registry, if the caller provided a target agent in the original headers', async () => {

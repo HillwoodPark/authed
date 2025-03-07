@@ -25,6 +25,15 @@ function normalizeUrl(url: string): string {
   return parsed.toString();
 }
 
+async function readContent(response: Response): Promise<object | string> {
+  const contentType = response.headers.get('content-type')?.toLowerCase();
+  if(contentType?.startsWith("application/json")) {
+    return await response.json();
+  } else {
+    return await response.text();
+  }
+}
+
 function headersToJSON(headers: Headers) {
   const headersJSON: Record<string, string> = {};
   for (const [name, value] of headers.entries()) {
@@ -183,12 +192,13 @@ export class AgentAuthImpl implements AgentAuth {
       const request = new Request(requestUrl);
       
       const response = await this.fetch(request, {method: "POST", headers: verifyHeaders});
+      const content = await readContent(response);
 
       logger.logDebug("Verify response status:", {status: response.status});
-      logger.logDebug("Verify response:", {response: await response.json()});
+      logger.logDebug("Verify response:", {content});
 
       if(response.status == 401) throw new Error("Invalid agent credentials");
-      if(response.status != 200) throw new Error(await response.text());
+      if(response.status != 200) throw new Error(content.toString());
 
       return true;
 

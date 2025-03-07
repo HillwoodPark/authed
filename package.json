@@ -1,6 +1,6 @@
 {
   "name": "@hillwoodpark/authed",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Node TypeScript implementation of https://github.com/authed-dev/authed",
   "homepage": "https://github.com/HillwoodPark/authed#readme",
   "bugs": {

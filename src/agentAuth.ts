@@ -25,6 +25,14 @@ function normalizeUrl(url: string): string {
   return parsed.toString();
 }
 
+function headersToJSON(headers: Headers) {
+  const headersJSON: Record<string, string> = {};
+  for (const [name, value] of headers.entries()) {
+    headersJSON[name] = value;
+  }
+  return headersJSON;
+}
+
 type FetchFn = (
   input: string | URL | globalThis.Request,
   init?: RequestInit,
@@ -61,10 +69,10 @@ export class AgentAuthImpl implements AgentAuth {
     this.tokenManager = deps.tokenManager;
     this.fetch = deps.fetch;
 
+    this.registryUrl = params.registryUrl;
     this.agentId = params.agentId;
     this.agentSecret = params.agentSecret;
     this.privateKey = params.privateKey;
-    this.registryUrl = params.registryUrl;
     this.publicKey = params.publicKey;
   }
 
@@ -122,7 +130,7 @@ export class AgentAuthImpl implements AgentAuth {
     logger.logDebug("Verifying request...")
     logger.logDebug("Method", {method});
     logger.logDebug("URL", {url});
-    logger.logDebug("Headers", {headers});
+    logger.logDebug("Headers", {headers: headersToJSON(headers)});
 
     // Extract token from Authorization header
     const authHeader = headers.get("authorization");
@@ -152,9 +160,9 @@ export class AgentAuthImpl implements AgentAuth {
 
       // Create a new DPoP proof specifically for the verification request
       const verificationProof = this.dpop.createProof(
-          "POST",  // Verification endpoint uses POST
-          verifyUrl,
-          this.privateKey
+        "POST",  // Verification endpoint uses POST
+        verifyUrl,
+        this.privateKey
       );
 
       const verifyHeaders = new Headers({
@@ -166,18 +174,18 @@ export class AgentAuthImpl implements AgentAuth {
         verifyHeaders.set("target-agent-id", targetAgentId);
       }
 
-      logger.logDebug("Verify request headers", {verifyHeaders});
+      logger.logDebug("Verify request headers", {verifyHeaders: headersToJSON(verifyHeaders)});
 
 
       // Ensure HTTPS for registry URLs
       const baseUrl = this.registryUrl.includes("getauthed.dev") ? this.registryUrl.replace("http://", "https://") : this.registryUrl;
       const requestUrl = baseUrl + "/tokens/verify";
       const request = new Request(requestUrl);
-
+      
       const response = await this.fetch(request, {method: "POST", headers: verifyHeaders});
 
-      logger.logDebug("Verify response status: {response.status_code}");
-      logger.logDebug("Verify response body: {response.text}");
+      logger.logDebug("Verify response status:", {status: response.status});
+      logger.logDebug("Verify response:", {response: await response.json()});
 
       if(response.status == 401) throw new Error("Invalid agent credentials");
       if(response.status != 200) throw new Error(await response.text());
@@ -226,7 +234,6 @@ export class AgentAuthImpl implements AgentAuth {
       
       logger.logDebug("Requesting token from registry...")
 
-      // Convert targetAgentId to string before passing to getToken
       const token = await this.tokenManager.getToken({
         agentId: this.agentId,
         agentSecret: this.agentSecret,

@@ -3,6 +3,10 @@ import { createAgentAuth } from "../../src/agentAuth.js";
 
 export async function main() {
 
+  // TODO(tjohns): generating a new keypair for each run of this client is excessive,
+  // but it at least prevents having to have a bunch of instructions on how to generate
+  // a keypair, which is a simple yet notoriously fragile process. After we have a CLI
+  // (or even before), create or document a better mechanism than this.
   const keypair = generateKeyPairSync("rsa", {
     modulusLength: 4096,
     publicKeyEncoding: {
@@ -34,9 +38,18 @@ export async function main() {
 
   const response = await fetch(request, {method, headers});
 
-  const json = await response.json();
+  const contentType = response.headers.get('content-type')?.toLowerCase();
+  switch(contentType) {
+    case "application/json":
+      const json = await response.json();
+      console.log(json);
+      break;
+    default:
+      const text = await response.text();
+      console.log(text);
+      break;
+  }
 
-  console.log(json);
 }
 
 

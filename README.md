@@ -16,6 +16,8 @@ Even more importantly, if you're using `authed` with your own agent, whether tha
 
 ### Any time:
 - Add a CLI
+- Add Installation section to this README (and indicate we've only used npm, and not pnpm or yarn, and definitely not in the browser)
+- Create a GitHub action to publish
 - Remove per-run key generation from tests
     
     Hard-coded keys in the code would actually be OK for this - BUT that's a really bad habit, and they're genuinely scary-looking and freak out static analysis tools. Once we have a CLI perhaps the CLI tool can gen some up in a temp directory as part of the test run.

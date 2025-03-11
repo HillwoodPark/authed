@@ -389,7 +389,7 @@ describe("agentAuth", () => {
 
     })
 
-    it('should force https for queries overridden to go to the official authed registry servers', async () => {
+    it('should force https for queries to registry servers', async () => {
       const agentAuth = new AgentAuthImpl(deps, {
         registryUrl: "http://test.getauthed.dev/registry",
         agentId: "agentId",
@@ -407,28 +407,6 @@ describe("agentAuth", () => {
 
       expect(fetch).toHaveBeenCalledWith(
         expect.objectContaining({url: "https://test.getauthed.dev/registry/tokens/verify"}),
-        expect.anything(),
-      )      
-    });
-
-    it('should not force https for queries overridden to go to locally hosted registry servers', async () => {
-      const agentAuth = new AgentAuthImpl(deps, {
-        registryUrl: "http://localhost",
-        agentId: "agentId",
-        agentSecret: "agentSecret",
-        privateKey: "privateKey",
-        publicKey: "publicKey",
-      });
-
-      dpop.createProof.mockRestore();
-      dpop.createProof.mockReturnValue('verificationProof')
-
-      const headers = new Headers({"authorization": "Bearer token", "dpop": "dpopProof"});
-
-      expect(await agentAuth.verifyRequest("POST", "https://example.com/targetAgentEndpoint", headers)).toEqual(true);
-
-      expect(fetch).toHaveBeenCalledWith(
-        expect.objectContaining({url: "http://localhost/tokens/verify"}),
         expect.anything(),
       )      
     });

@@ -10,7 +10,7 @@ Experimental Work-In-Progess Node TypeScript evaluation implementation of [authe
 Even more importantly, if you're using `authed` with your own agent, whether that's the original Python SDK, your own implementation, or this implementation **[please reach out and let us know.](https://hillwoodpark.com/contact)** Having our own AI agents talk to each other is a fine starting point for this evaluation, but the use cases we'd ***REALLY*** like to evaluate are whether our Epic Road Trip Planner Agent could book a hotel or a campground or a dinner reservation for our users with YOUR Agents, securely, privately, and with minimal end user interaction. SO - PLEASE LET US KNOW!
 
 ## Dependencies
-- Node.js >= v22.12.0 - this code uses Fetch API, which was available in earlier versions of Node, but has not been tested with any version prior to v22.12.
+- Node.js >= v22.14.0 - this code uses Fetch API, which was available in earlier versions of Node, but has not been tested with any version prior to v22.12.
 
 ## TODO:
 

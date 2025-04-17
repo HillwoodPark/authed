@@ -15,6 +15,9 @@
   },
   "license": "MIT",
   "author": "Tim Johns",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

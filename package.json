@@ -26,10 +26,10 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "9.0.9",
-    "@types/node": "22.14.1",
-    "tsx": "4.19.3",
+    "@types/node": "22.15.21",
+    "tsx": "4.19.4",
     "typescript": "5.8.3",
-    "vitest": "3.1.1"
+    "vitest": "3.1.4"
   },
   "dependencies": {
     "@hillwoodpark/gcp-logger": "1.0.4",

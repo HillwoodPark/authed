@@ -1,0 +1,52 @@
+name: Dependabot Auto-merge
+on: pull_request
+
+permissions:
+  pull-requests: write
+  contents: write
+jobs:
+  dependabot:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    env:
+      PR_URL: ${{github.event.pull_request.html_url}}
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    steps:
+      - name: Dependabot metadata
+        id: dependabot-metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Auto merge a PR
+        if: ${{ contains(steps.dependabot-metadata.outputs.dependency-names, '@types/') }}
+        run: gh pr merge --auto --merge -b "This PR was auto-merged, because it was for types only. '${{steps.dependabot-metadata.outputs.update-type}}:' ${{steps.dependabot-metadata.outputs.dependency-names}}." "$PR_URL"
+      - name: Comment on a PR
+        if: ${{ !contains(steps.dependabot-metadata.outputs.dependency-names, '@types/') }}
+        run: gh pr review --comment -b "Determine if this class of PR could be auto-merged, and update dependabot-auto-approve.yml to either auto-merge or skip this message going forward '${{steps.dependabot-metadata.outputs.update-type}}:' ${{steps.dependabot-metadata.outputs.dependency-names}}." "$PR_URL"
+
+  build:
+
+    # ONLY run this build job for dependabot PRs, otherwise the normal build runs
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.4.1]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      env: 
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        registry-url: 'https://npm.pkg.github.com'
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: npm test
+

@@ -11,6 +11,9 @@ on:
 jobs:
   build:
 
+    # Skip this build job for dependabot PRs, which have their own build job
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    
     runs-on: ubuntu-latest
 
     strategy:

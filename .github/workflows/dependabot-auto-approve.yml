@@ -22,10 +22,18 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Auto merge a PR
-        if: ${{ contains(steps.dependabot-metadata.outputs.dependency-names, '@types/') }}
-        run: gh pr merge --auto --merge -b "This PR was auto-merged, because it was for types only. '${{steps.dependabot-metadata.outputs.update-type}}:' ${{steps.dependabot-metadata.outputs.dependency-names}}." "$PR_URL"
+        if: >-
+          ${{
+            startsWith(steps.dependabot-metadata.outputs.dependency-names, '@types/') ||
+            steps.dependabot-metadata.outputs.dependency-names == 'tsx'
+          }}
+        run: gh pr merge --auto --merge -b "This PR was auto-merged. '${{steps.dependabot-metadata.outputs.update-type}}:' ${{steps.dependabot-metadata.outputs.dependency-names}}." "$PR_URL"
       - name: Comment on a PR
-        if: ${{ !contains(steps.dependabot-metadata.outputs.dependency-names, '@types/') }}
+        if: >-
+          ${{ !(
+            startsWith(steps.dependabot-metadata.outputs.dependency-names, '@types/') ||
+            steps.dependabot-metadata.outputs.dependency-names == 'tsx'
+          ) }}
         run: gh pr review --comment -b "Determine if this class of PR could be auto-merged, and update dependabot-auto-approve.yml to either auto-merge or skip this message going forward '${{steps.dependabot-metadata.outputs.update-type}}:' ${{steps.dependabot-metadata.outputs.dependency-names}}." "$PR_URL"
 
   build:

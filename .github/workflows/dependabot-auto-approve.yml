@@ -25,14 +25,20 @@ jobs:
         if: >-
           ${{
             startsWith(steps.dependabot-metadata.outputs.dependency-names, '@types/') ||
-            steps.dependabot-metadata.outputs.dependency-names == 'tsx'
+            startsWith(steps.dependabot-metadata.outputs.dependency-names, '@testing-library/') ||
+            steps.dependabot-metadata.outputs.dependency-names == 'tsx' ||
+            steps.dependabot-metadata.outputs.dependency-names == 'typescript' ||
+            steps.dependabot-metadata.outputs.dependency-names == 'vitest'
           }}
         run: gh pr merge --auto --merge -b "This PR was auto-merged. '${{steps.dependabot-metadata.outputs.update-type}}:' ${{steps.dependabot-metadata.outputs.dependency-names}}." "$PR_URL"
       - name: Comment on a PR
         if: >-
           ${{ !(
             startsWith(steps.dependabot-metadata.outputs.dependency-names, '@types/') ||
-            steps.dependabot-metadata.outputs.dependency-names == 'tsx'
+            startsWith(steps.dependabot-metadata.outputs.dependency-names, '@testing-library/') ||
+            steps.dependabot-metadata.outputs.dependency-names == 'tsx' ||
+            steps.dependabot-metadata.outputs.dependency-names == 'typescript' ||
+            steps.dependabot-metadata.outputs.dependency-names == 'vitest'
           ) }}
         run: gh pr review --comment -b "Determine if this class of PR could be auto-merged, and update dependabot-auto-approve.yml to either auto-merge or skip this message going forward '${{steps.dependabot-metadata.outputs.update-type}}:' ${{steps.dependabot-metadata.outputs.dependency-names}}." "$PR_URL"
 

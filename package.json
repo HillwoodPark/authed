@@ -33,6 +33,6 @@
   },
   "dependencies": {
     "@hillwoodpark/gcp-logger": "1.0.4",
-    "jsonwebtoken": "9.0.2"
+    "jsonwebtoken": "9.0.3"
   }
 }

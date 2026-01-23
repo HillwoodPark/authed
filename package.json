@@ -29,7 +29,7 @@
     "@types/node": "25.0.10",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
-    "vitest": "4.0.17"
+    "vitest": "4.0.18"
   },
   "dependencies": {
     "@hillwoodpark/gcp-logger": "1.0.4",

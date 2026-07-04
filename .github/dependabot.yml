@@ -10,6 +10,11 @@ updates:
     registries: "*"
     schedule:
       interval: "daily"
+    # Supply-chain cooldown: hold new releases 3 days (first-party @hillwoodpark exempt)
+    cooldown:
+      default-days: 3
+      exclude:
+        - "@hillwoodpark/*"
 registries:
   npm-github:
     type: npm-registry

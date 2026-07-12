@@ -1,0 +1,35 @@
+# Guards the workflow supply chain. Runs on every PR to main so it can serve as a
+# required status check (context: "workflow-lint").
+#   1. Ban `pull_request_target` — the trigger that exposes secrets to fork PRs
+#      (classic Actions exfiltration vector). Deterministic; FAILS the check.
+#   2. zizmor static audit (template injection, dangerous checkouts, over-broad
+#      perms). ADVISORY for now (continue-on-error) so a pre-existing finding or
+#      a tooling hiccup can't block every PR. To enforce it too, drop
+#      `continue-on-error` once findings are triaged.
+name: Workflow Lint
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Ban pull_request_target
+        run: |
+          if grep -rnE '^[[:space:]]*pull_request_target[[:space:]]*:' .github/workflows/; then
+            echo "::error::pull_request_target is banned in this org (secret-exfiltration risk). Use pull_request."
+            exit 1
+          fi
+      - name: Static audit (zizmor) — advisory
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: pipx run zizmor --persona=regular --min-severity=high .github/workflows/

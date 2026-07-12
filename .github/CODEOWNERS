@@ -1,0 +1,4 @@
+# Auto-requests review on CI/workflow & config changes.
+# Advisory unless the repo ruleset enables 'require review from Code Owners'
+# (avoid that on repos with Dependabot auto-merge — it would gate action-bump PRs).
+/.github/ @TimJohns

@@ -2,6 +2,8 @@
 Experimental Work-In-Progess Node TypeScript evaluation implementation of [authed.](https://github.com/authed-dev/authed)
 
 ![Vitest](https://github.com/HillwoodPark/authed/actions/workflows/vitest.yml/badge.svg)
+[![Workflow Lint](https://github.com/HillwoodPark/authed/actions/workflows/workflow-lint.yml/badge.svg)](https://github.com/HillwoodPark/authed/actions/workflows/workflow-lint.yml)
+[![Audited by zizmor](https://img.shields.io/badge/audited%20by-zizmor-purple)](https://github.com/zizmorcore/zizmor)
 
 **This implementation is both experimental and a work-in-progress (WIP)**, the intent of which is to evaluate `authed` for potential use in [Epic Road Trip Planner](https://epicroadtripplanner.com). **Do not use it in production environments**. In the mean time, we've made this repository and package public with the hope that others can use it as a reference or starting point for their own implementation of `authed` for Nodejs or other JavaScript platforms.
 

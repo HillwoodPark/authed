@@ -1,0 +1,18 @@
+# Shared zizmor config for HillwoodPark repos (rolled out identically wherever
+# the workflow-lint check runs). Auto-discovered by zizmor at .github/zizmor.yml.
+#
+# The only fleet-wide high finding is `excessive-permissions` on the Dependabot
+# auto-merge CALLER workflow: its top-level permissions (contents: write /
+# pull-requests: write / id-token: write) are required by the reusable-workflow
+# merge job and inherited by the lightweight preflight job. That grant is
+# intentional for the auto-merge pattern, so it's accepted here — leaving the
+# rest of zizmor's audits (template-injection, dangerous-triggers, artipacked,
+# cache-poisoning, ...) enforceable as a blocking check.
+#
+# Alternative to suppression: move permissions to job level and give the preflight
+# job `permissions: {}`. Kept as suppression per current convention.
+rules:
+  excessive-permissions:
+    ignore:
+      - dependabot-auto-approve.yml
+      - report-to-collector-dependabot-auto-merge.yml

@@ -32,7 +32,7 @@
     "vitest": "4.1.10"
   },
   "dependencies": {
-    "@hillwoodpark/gcp-logger": "1.0.4",
+    "@hillwoodpark/gcp-logger": "1.0.9",
     "jsonwebtoken": "9.0.3"
   }
 }

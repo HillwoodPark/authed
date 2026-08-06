@@ -27,7 +27,7 @@
   "devDependencies": {
     "@types/jsonwebtoken": "9.0.10",
     "@types/node": "26.1.2",
-    "tsx": "4.23.3",
+    "tsx": "4.23.5",
     "typescript": "7.0.2",
     "vitest": "4.1.10"
   },
